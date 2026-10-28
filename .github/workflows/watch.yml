@@ -1,0 +1,45 @@
+name: watch
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shared with keepalive.yml: runs queue instead of overlapping, so nothing races on state.json.
+concurrency:
+  group: refurb-state
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check refurb stock
+        run: node src/watch.ts
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+      # Runs even when the check failed, so the "broken" flag is persisted and the alert isn't repeated.
+      - name: Commit state
+        if: always()
+        run: |
+          if git diff --quiet -- state.json; then
+            echo "state.json unchanged"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add state.json
+          git commit -m 'chore(state): update seen listings'
+          git pull --rebase
+          git push
