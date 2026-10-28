@@ -1,0 +1,21 @@
+{
+  "name": "refurb-watcher",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Watches Apple Canada's refurbished store for an M4 Mac mini under a price threshold and pushes alerts via ntfy.sh.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "watch": "node src/watch.ts",
+    "dry-run": "node src/watch.ts --dry-run",
+    "test-push": "node src/test-push.ts",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "typescript": "^5.9.0"
+  }
+}
