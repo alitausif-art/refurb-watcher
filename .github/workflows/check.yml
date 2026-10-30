@@ -2,7 +2,7 @@ name: check
 
 on:
   push:
-    paths-ignore: ['state.json', '.keepalive']
+    paths-ignore: ['state.json', 'm7-state.json', '.keepalive']
   pull_request:
 
 permissions:

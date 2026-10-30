@@ -1,10 +1,10 @@
 name: keepalive
 
 # GitHub disables scheduled workflows in public repos after 60 days without repository activity.
-# Paused 2026-10-30 together with watch.yml; restore both schedule triggers to resume.
+# The M7 watcher commits state only when it alerts, which can be months apart, so this heartbeat matters.
 on:
-  # schedule:
-  #   - cron: '17 9 * * 1'
+  schedule:
+    - cron: '17 9 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
           git push
 
       # Belt and braces in case bot commits ever stop counting as activity.
-      - name: Re-enable watch workflow
-        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/watch.yml/enable"
+      - name: Re-enable m7 workflow
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/m7.yml/enable"
         env:
           GH_TOKEN: ${{ github.token }}

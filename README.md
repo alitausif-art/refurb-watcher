@@ -1,5 +1,29 @@
 # refurb-watcher
 
+Two small watchers that run from GitHub Actions and push to your phone through [ntfy](https://ntfy.sh):
+
+- **M7 watcher** (`m7.yml`, active) — alerts on Apple-confirmed M7 news: a [newsroom](https://www.apple.com/newsroom/) press release that mentions M7 (any Mac), and the day the [Canadian Mac mini buy page](https://www.apple.com/ca/shop/buy-mac/mac-mini) lists an M7 chip. See [M7 watcher](#m7-watcher).
+- **Refurb watcher** (`watch.yml`, paused since 2026-10-30 — the M4 Mac mini was bought) — alerts when a matching listing appears on the Apple Canada refurbished store. Described below; to resume, restore the `schedule:` block in `watch.yml`.
+
+## M7 watcher
+
+Runs twice a day (`17 14,23 * * *` UTC: 07:17 and 16:17 Calgary time in winter, an hour later in summer). One request to Apple's newsroom Atom feed and one to the Mac mini buy page per run. Rumours are out of scope on purpose; only Apple's own publications count, so expect silence until Apple says something.
+
+| Situation | What happens |
+|---|---|
+| A newsroom entry mentions **M7** (title or summary; "M7", "M7 Pro", "M7 Max", "M7 Ultra") | One "Apple M7 news" push per entry, with the article link. Remembered in `m7-state.json`, so each entry alerts once. |
+| The Mac mini buy page lists an **M7** configuration or describes the mini as having M7 | One "M7 Mac mini is on apple.ca" push, high priority. Sent once. |
+| Feed or page answers 403/429, the feed parses to zero entries, or the page has no "M<n> chip" strings at all | One "M7 watcher broken (source)" push, run fails, no repeats while it stays broken, "recovered" push when it parses again. The two sources are tracked separately. |
+| Timeout, network error, other HTTP error | Run fails with no push (GitHub emails you about failed runs). Next run tries again. |
+
+```bash
+npm run m7:dry-run   # fetch both sources, print every newsroom entry (M7 ones flagged) and the mini page status; sends nothing
+```
+
+To watch for a different chip or product, edit `M7`/`M7_CHIP` in [`src/m7-parse.ts`](src/m7-parse.ts) and the two URLs in [`src/config.ts`](src/config.ts).
+
+## Refurb watcher
+
 Watches the [Apple Canada refurbished Mac mini page](https://www.apple.com/ca/shop/refurbished/mac/mac-mini) every 5 minutes from GitHub Actions and pushes a notification to your phone through [ntfy](https://ntfy.sh) when a matching listing appears, and again when it disappears.
 
 Default match: title contains **"Mac mini Apple M4 Chip"**, does **not** contain **"M4 Pro"**, price **under $1,300 CAD**.
@@ -19,11 +43,12 @@ Default match: title contains **"Mac mini Apple M4 Chip"**, does **not** contain
 
 Workflows:
 
-- [`watch.yml`](.github/workflows/watch.yml) runs on cron `*/5 * * * *`. GitHub's scheduler is best-effort, so expect runs to sometimes be several minutes late.
-- [`keepalive.yml`](.github/workflows/keepalive.yml) runs weekly. It commits `.keepalive` so GitHub doesn't disable the schedule after 60 days without activity, and re-enables `watch.yml` via the API as a backup.
+- [`watch.yml`](.github/workflows/watch.yml) ran on cron `*/5 * * * *` (currently paused; `workflow_dispatch` still works). GitHub's scheduler is best-effort, so expect runs to sometimes be several minutes late.
+- [`m7.yml`](.github/workflows/m7.yml) runs twice daily; see [M7 watcher](#m7-watcher).
+- [`keepalive.yml`](.github/workflows/keepalive.yml) runs weekly. It commits `.keepalive` so GitHub doesn't disable the schedules after 60 days without activity, and re-enables `m7.yml` via the API as a backup.
 - [`check.yml`](.github/workflows/check.yml) runs the typecheck and tests on push.
 
-`watch` and `keepalive` share the concurrency group `refurb-state`, so they never overlap or race on `state.json`.
+`watch`, `m7` and `keepalive` share the concurrency group `refurb-state`, so they never overlap or race on the state files.
 
 ## Setup
 

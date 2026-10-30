@@ -12,6 +12,10 @@ export const MATCH = {
   maxPrice: 1300,
 };
 
+// M7 watcher (src/m7.ts): Apple's own newsroom feed, and the Canadian Mac mini buy page.
+export const NEWSROOM_FEED = 'https://www.apple.com/newsroom/rss-feed.rss';
+export const MINI_BUY_PAGE = 'https://www.apple.com/ca/shop/buy-mac/mac-mini';
+
 export const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15';
 

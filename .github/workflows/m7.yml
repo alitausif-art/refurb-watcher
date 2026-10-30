@@ -1,0 +1,48 @@
+name: m7
+
+# Twice a day, in UTC: 14:17 (07:17 Calgary MST / 08:17 MDT) catches Apple's early-morning press releases;
+# 23:17 (16:17 MST / 17:17 MDT) catches event-day announcements. Runs are silent unless Apple itself
+# publishes M7 news or lists an M7 Mac mini on apple.ca, so the cadence is about catching the day, not the minute.
+on:
+  schedule:
+    - cron: '17 14,23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shared with keepalive.yml and watch.yml: runs queue instead of overlapping, so nothing races on the state files.
+concurrency:
+  group: refurb-state
+  cancel-in-progress: false
+
+jobs:
+  m7:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check Apple for M7 news
+        run: node src/m7.ts
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+      # Runs even when the check failed, so a "broken" flag is persisted and the alert isn't repeated.
+      - name: Commit state
+        if: always()
+        run: |
+          if git diff --quiet -- m7-state.json; then
+            echo "m7-state.json unchanged"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add m7-state.json
+          git commit -m 'chore(state): record M7 alerts'
+          git pull --rebase
+          git push
