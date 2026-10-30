@@ -1,8 +1,10 @@
 name: watch
 
+# Paused 2026-10-30: the M4 Mac mini was bought. To resume watching, restore the
+# schedule trigger below (and the one in keepalive.yml) and push.
 on:
-  schedule:
-    - cron: '*/5 * * * *'
+  # schedule:
+  #   - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:

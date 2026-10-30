@@ -1,9 +1,10 @@
 name: keepalive
 
 # GitHub disables scheduled workflows in public repos after 60 days without repository activity.
+# Paused 2026-10-30 together with watch.yml; restore both schedule triggers to resume.
 on:
-  schedule:
-    - cron: '17 9 * * 1'
+  # schedule:
+  #   - cron: '17 9 * * 1'
   workflow_dispatch:
 
 permissions:
