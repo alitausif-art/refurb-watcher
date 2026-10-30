@@ -1,4 +1,15 @@
 {
   "broken": false,
-  "listings": {}
+  "listings": {
+    "FU9D3LL/A": {
+      "title": "Refurbished Mac mini Apple M4 Chip with 10-Core CPU and 10-Core GPU, Gigabit Ethernet",
+      "price": 929,
+      "url": "https://www.apple.com/ca/shop/product/fu9d3ll/a/Refurbished-Mac-mini-Apple-M4-Chip-with-10-Core-CPU-and-10-Core-GPU-Gigabit-Ethernet-"
+    },
+    "FU9E3LL/A": {
+      "title": "Refurbished Mac mini Apple M4 Chip with 10-Core CPU and 10-Core GPU, Gigabit Ethernet",
+      "price": 1189,
+      "url": "https://www.apple.com/ca/shop/product/fu9e3ll/a/Refurbished-Mac-mini-Apple-M4-Chip-with-10-Core-CPU-and-10-Core-GPU-Gigabit-Ethernet-"
+    }
+  }
 }
